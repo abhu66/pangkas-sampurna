@@ -1,6 +1,7 @@
 
-
+import 'dart:async';
 import 'package:pangkas_app/model/Karyawan.dart';
+import 'package:pangkas_app/response/karyawan_response.dart';
 import 'package:pangkas_app/util/network_util.dart';
 
 class ApiService{
@@ -11,7 +12,6 @@ class ApiService{
   static final String HISTORY_URL = BASE_URL + "history";
   static final _API_KEY = "ABUKHOERULZAMIAT";
   NetworkUtil  _networkUtil = new NetworkUtil();
-
 
 
 
@@ -40,15 +40,18 @@ class ApiService{
 //    }
 //  }
 
-  Future<Karyawan> login(String username, String password) {
+  Future<Karyawan> login(String username, String password) async{
     return _networkUtil.post(LOGIN_URL, body: {
       "token": _API_KEY,
       "username": username,
       "password": password
     }).then((dynamic res) {
-      print(res.toString());
-      if(res["error"]) throw new Exception(res["error_message"]);
-      return new Karyawan.map(res["karyawan"][0]);
+      if(res['error']){
+        throw Exception(res['error_message']);
+      }
+      else {
+        return new KaryawanResponse.fromJson(res).data;
+      }
     });
   }
 }

@@ -1,8 +1,10 @@
 
 
 
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:pangkas_app/model/Karyawan.dart';
 import 'package:pangkas_app/services/ApiService.dart';
+import 'package:pangkas_app/util/base_widget.dart';
 
 abstract class LoginScreenContract{
   void onLoginSuccess(Karyawan karyawan);
@@ -17,7 +19,9 @@ class LoginScreenPresenter{
   doLogin(String username, String password){
     _apiService.login(username, password).then((Karyawan karyawan){
       _view.onLoginSuccess(karyawan);
-    }).catchError((Exception error) =>
-    _view.onLoginError(error.toString()));
+    }).catchError((err) {
+      _view.onLoginError(err.toString());
+    });
   }
+
 }

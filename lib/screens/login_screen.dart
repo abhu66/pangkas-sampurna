@@ -6,6 +6,9 @@ import 'package:pangkas_app/auth.dart';
 import 'package:pangkas_app/data/database_helper.dart';
 import 'package:pangkas_app/model/Karyawan.dart';
 import 'package:pangkas_app/presenter/login_presenter.dart';
+import 'package:pangkas_app/screens/home_screen.dart';
+import 'package:pangkas_app/util/base_widget.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -15,14 +18,16 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
-class LoginScreenState extends State<LoginScreen> implements LoginScreenContract,AuthStateListener{
+class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScreenContract,AuthStateListener{
 
+
+  bool _isLoading     = false;
+  final formKey       = new GlobalKey<FormState>();
+  final scaffoldKey   = new GlobalKey<ScaffoldState>();
   BuildContext _ctx;
-  bool _isLoading = false;
-  final formKey = new GlobalKey<FormState>();
-  final scaffoldKey = new GlobalKey<ScaffoldState>();
   String _username,_password;
   LoginScreenPresenter _presenter;
+  Karyawan dataKaryawan;
 
   LoginScreenState(){
     _presenter = new LoginScreenPresenter(this);
@@ -48,7 +53,6 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
   @override
   Widget build(BuildContext context) {
     _ctx = context;
-    _ctx = context;
     var loginBtn = new RaisedButton(
       onPressed: _submit,
       child: new Text("LOGIN"),
@@ -57,7 +61,7 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
     var loginForm = new Column(
       children: <Widget>[
         new Text(
-          "Login App",
+          "Login",
           textScaleFactor: 2.0,
         ),
         new Form(
@@ -73,14 +77,14 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
                         ? "Username must have atleast 10 chars"
                         : null;
                   },
-                  decoration: new InputDecoration(labelText: "Username"),
+                  decoration: new InputDecoration(labelText: "Nomor Identitas"),
                 ),
               ),
               new Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new TextFormField(
                   onSaved: (val) => _password = val,
-                  decoration: new InputDecoration(labelText: "Password"),
+                  decoration: new InputDecoration(labelText: "Kata Sandi"),
                 ),
               ),
             ],
@@ -97,9 +101,9 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
       key: scaffoldKey,
       body: new Container(
         decoration: new BoxDecoration(
+          color: Colors.white,
           image: new DecorationImage(
-              image: new AssetImage("assets/images/logo_login.png"),
-              fit: BoxFit.cover),
+              image: new AssetImage("assets/images/logo_login.png"),),
         ),
         child: new Center(
           child: new ClipRect(
@@ -119,118 +123,25 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
     );
   }
 
-  Widget _iconLogin(){
-    return Image.asset("assets/images/logo_login.png",width: 150.0,height: 150.0,);
-  }
-  Widget _titleDescription(){
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 16.0),
-        ),
-        Text("Login to App",
-          style: TextStyle(color: Colors.white,fontSize: 16.0),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 12.0),
-        ),
-        Text("Silahkan login untuk bisa mengakses aplikasi Pangkas Rambut",
-          style: TextStyle(color: Colors.white,fontSize: 12.0),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _textField(){
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 12.0),
-        ),
-        TextFormField(
-          decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                    color: Colors.white,
-                    width: 1.5
-                ),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 3.0
-                  )
-              ),
-              hintText: "Nomor Identitas",
-              hintStyle: TextStyle(color: Colors.black26)
-          ),
-          style: TextStyle(color: Colors.white),
-          autofocus: false,
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 12.0),
-        ),
-        TextFormField(
-          decoration: const InputDecoration(
-              border: UnderlineInputBorder(),
-              enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.white,
-                      width: 1.5
-                  )
-              ),
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.blue,
-                      width: 3.0
-                  )
-              ),
-              hintText: "Password",
-              hintStyle: TextStyle(color: Colors.black26)
-          ),
-          style: TextStyle(color: Colors.white),
-          obscureText: true,
-          autofocus: false,
-        )
-      ],
-    );
-  }
-  Widget _buildButton(BuildContext context){
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(top: 16.0),
-        ),
-        InkWell(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 15.0),
-            width: double.infinity,
-            child: Text('Masuk',style: TextStyle(color: Colors.orange[400]),textAlign: TextAlign.center),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30.0),
-            ),
-          ),
-          onTap: (){
-            _submit();
-          },
-        )
-      ],
-    );
-  }
 
   @override
-  void onAuthStateChanged(AuthState state) {
-    if(state == AuthState.LOGGED_IN)
-      Navigator.of(_ctx).pushReplacementNamed("/home");
+  void onAuthStateChanged(AuthState state) async{
+    if(state == AuthState.LOGGED_IN) {
+      var db = new DatabaseHelper();
+      dataKaryawan = await db.getKaryawan();
+      Navigator.of(_ctx).pushReplacement(
+          new MaterialPageRoute(settings: const RouteSettings(name: '/home'),
+              builder: (_ctx) => new HomeScreen(karyawan: dataKaryawan,)
+          )
+      );
+    }
   }
 
   @override
   void onLoginError(String errorTxt) {
     // TODO: implement onLoginError
-    _showSnackBar(errorTxt);
+//    _showSnackBar(errorTxt);
+    showAlertDialog(context, true, errorTxt,"Login Gagal",AlertType.error);
     setState(() {
       _isLoading = false;
     });
@@ -239,12 +150,38 @@ class LoginScreenState extends State<LoginScreen> implements LoginScreenContract
   @override
   void onLoginSuccess(Karyawan karyawan) async {
     // TODO: implement onLoginSuccess
-    _showSnackBar(karyawan.toString());
+//    _showSnackBar(karyawan.toString());
     setState(() => _isLoading = false );
     var db = new DatabaseHelper();
     await db.saveKaryawan(karyawan);
-    var authStateProvider = new AuthStateProvider();
-    authStateProvider.notify(AuthState.LOGGED_IN);
+    dataKaryawan = await db.getKaryawan();
+    showAlertDialog(context, true, "Selamat datang "+karyawan.nama.toUpperCase(),"Login Berhasil",AlertType.success);
   }
 
+  @override
+  void showAlertDialog(BuildContext context, bool params, dynamic obj,String alertTitle,AlertType type) {
+    // TODO: implement showAlertDialog
+    Alert(
+      context: context,
+      type: type,
+      title: "$alertTitle",
+      desc:  "$obj",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "Ok",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+            if(type == AlertType.success){
+              var authStateProvider = new AuthStateProvider();
+              authStateProvider.notify(AuthState.LOGGED_IN);
+            }
+          },
+          width: 120,
+        )
+      ],
+    ).show();
+  }
 }

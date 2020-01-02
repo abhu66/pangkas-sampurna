@@ -50,4 +50,12 @@ class DatabaseHelper {
      var res  = await dbClient.query("Karyawan");
      return res.length > 0 ? true : false;
    }
+   Future<Karyawan> getKaryawan() async{
+     var dbClient = await db;
+     List<Map> karyawan = await dbClient.query("Karyawan");
+     if(karyawan.length > 0){
+       return Karyawan.fromMap(karyawan.first);
+     }
+     return null;
+   }
 }

@@ -1,4 +1,8 @@
 
+import 'dart:convert';
+
+import 'package:http/http.dart';
+
 class Karyawan{
   String id;
   String identitas;
@@ -10,33 +14,35 @@ class Karyawan{
 
   Karyawan({this.identitas,this.nama,this.email,this.password,this.hp,this.token});
 
-  Karyawan.map(dynamic obj){
-    this.identitas = obj["identitas"];
-    this.nama = obj["nama"];
-    this.email = obj["email"];
-    this.password = obj["password"];
-    this.hp  = obj["hp"];
-    this.token = obj["token"];
+  factory Karyawan.fromJson(Map<String, dynamic> map){
+    return Karyawan(
+      identitas : map['identitas'],
+      nama      : map['nama'],
+      email     : map['email'],
+      password  : map['password'],
+      hp        : map['hp'],
+      token     : map['token'],
+    );
   }
 
-  String get _identitas => identitas;
-  String get _nama      => nama;
-  String get _email     => email;
-  String get _password  => password;
-  String get _hp        => hp;
-  String get _token     => token;
-
-
   Map<String, dynamic> toMap(){
-    var map = new Map<String,dynamic>();
-    map["identitas"] = identitas;
-    map["nama"]      = nama;
-    map["email"]     = email;
-    map["password"]  = password;
-    map["hp"]        = hp;
-    map["token"]     = token;
+    var map = new Map<String, dynamic>();
+     map['identitas'] = identitas;
+     map['nama']      = nama;
+     map['email']     = email;
+     map['password']  = password;
+     map['hp']        = hp;
+     map['token']     = token;
 
     return map;
+  }
+  Karyawan.fromMap(Map<String, dynamic> map) {
+    identitas = map['identitas'];
+    nama      = map['nama'];
+    email     = map['email'];
+    password  = map['password'];
+    hp        = map['hp'];
+    token     = map['token'];
   }
 
 

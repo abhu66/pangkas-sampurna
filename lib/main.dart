@@ -4,9 +4,9 @@ import 'package:pangkas_app/routes.dart';
 import 'package:pangkas_app/auth.dart';
 
 
-void main() => runApp(new LoginApp());
+void main() => runApp(new MainApp());
 
-class LoginApp extends StatelessWidget {
+class MainApp extends StatelessWidget {
 
 
   // This widget is the root of your application.

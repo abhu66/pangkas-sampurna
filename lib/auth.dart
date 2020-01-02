@@ -39,7 +39,7 @@ class AuthStateProvider {
     }
   }
 
-  void notify(AuthState state){
+  void notify(AuthState state) async{
     _subscribers.forEach((AuthStateListener s) => s.onAuthStateChanged(state));
   }
 }
