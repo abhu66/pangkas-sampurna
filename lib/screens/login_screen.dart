@@ -19,11 +19,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScreenContract,AuthStateListener{
-
-
   bool _isLoading     = false;
   final formKey       = new GlobalKey<FormState>();
-  final scaffoldKey   = new GlobalKey<ScaffoldState>();
+  GlobalKey _scaffoldKey;
   BuildContext _ctx;
   String _username,_password;
   LoginScreenPresenter _presenter;
@@ -35,92 +33,140 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     authStateProvider.subscribe(this);
   }
 
-  void _submit() {
-    final form = formKey.currentState;
-
-    if(form.validate()){
-      setState(() => _isLoading = true);
-      form.save();
-      _presenter.doLogin(_username, _password);
-    }
-  }
-
-  void _showSnackBar(String text){
-    scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(text)));
-  }
-
-
   @override
   Widget build(BuildContext context) {
     _ctx = context;
-    var loginBtn = new RaisedButton(
-      onPressed: _submit,
-      child: new Text("LOGIN"),
-      color: Colors.primaries[0],
-    );
-    var loginForm = new Column(
-      children: <Widget>[
-        new Text(
-          "Login",
-          textScaleFactor: 2.0,
+    return new Scaffold(
+      appBar: null,
+      key: _scaffoldKey,
+      body: new Container(
+        padding: EdgeInsets.all(30.0),
+        color: Colors.white,
+        child: ListView(
+          children: <Widget>[
+            Center(
+              child: Column(
+                children: <Widget>[
+                  _iconLogin(),
+                  _titleLogin(),
+                  _formLogin(),
+                  _buildButton(context),
+                ],
+              ),
+            )
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _iconLogin(){
+    return Image.asset("assets/images/logo_login.png",
+    width: 150.0,
+    height: 150.0,);
+  }
+
+  Widget _titleLogin(){
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 16.0),
+        ),
+        Text("Login",
+        style: TextStyle(color: Colors.white,fontSize: 16.0),)
+      ],
+    );
+  }
+
+  Widget _formLogin(){
+    return Column(
+      children: <Widget>[
         new Form(
           key: formKey,
           child: new Column(
             children: <Widget>[
-              new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new TextFormField(
-                  onSaved: (val) => _username = val,
-                  validator: (val) {
-                    return val.length < 10
-                        ? "Username must have atleast 10 chars"
-                        : null;
-                  },
-                  decoration: new InputDecoration(labelText: "Nomor Identitas"),
+              new TextFormField(
+                onSaved: (val) => _username = val,
+                validator: (val) {
+                  return val.length < 10
+                      ? "ID must have atleast 16 chars"
+                      : null;
+                },
+                decoration: InputDecoration(
+                  icon: Icon(Icons.account_circle),
+                  labelText: 'ID',
                 ),
               ),
-              new Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: new TextFormField(
-                  onSaved: (val) => _password = val,
-                  decoration: new InputDecoration(labelText: "Kata Sandi"),
+              new TextFormField(
+                onSaved: (val) => _password = val,
+                validator: (val) {
+                  return val.length < 5
+                      ? "Password must have atleast 6 chars"
+                      : null;
+                },
+                obscureText: true,
+                decoration: InputDecoration(
+                  icon: Icon(Icons.lock),
+                  labelText: 'Password',
                 ),
               ),
             ],
           ),
         ),
-        _isLoading ? new CircularProgressIndicator() : loginBtn
       ],
-      crossAxisAlignment: CrossAxisAlignment.center,
     );
+  }
 
-
-    return new Scaffold(
-      appBar: null,
-      key: scaffoldKey,
-      body: new Container(
-        decoration: new BoxDecoration(
-          color: Colors.white,
-          image: new DecorationImage(
-              image: new AssetImage("assets/images/logo_login.png"),),
+  Widget _buildButton(BuildContext _ctx){
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 20.0),
         ),
-        child: new Center(
-          child: new ClipRect(
-            child: new BackdropFilter(
-              filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-              child: new Container(
-                child: loginForm,
-                height: 300.0,
-                width: 300.0,
-                decoration: new BoxDecoration(
-                    color: Colors.grey.shade200.withOpacity(0.5)),
-              ),
+        InkWell(
+          onTap: (){
+            _loginProcess();
+          },
+          child: Container(
+            width: double.infinity,
+            child:
+            RaisedButton(
+              shape: new RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(18.0),
+                  side: BorderSide(color: Colors.red)),
+              onPressed: () {
+                _loginProcess();
+              },
+              color: Colors.red,
+              textColor: Colors.white,
+              child: _isLoading ? _loadingIndicator() : Text("Login".toUpperCase(),
+                  style: TextStyle(fontSize: 14)),
             ),
           ),
-        ),
-      ),
+        )
+      ],
     );
+  }
+  Widget _loadingIndicator() {
+    return Container(
+        width: 20.0,
+        height: 20.0,
+        child: (CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Colors.white,
+          ),
+          backgroundColor: Colors.yellow,
+          value: 0.2,
+        ))
+    );
+  }
+  void _loginProcess(){
+    final form = formKey.currentState;
+    if(form.validate()){
+      setState(() => _isLoading = true);
+        form.save();
+      _presenter.doLogin(_username, _password);
+    }
   }
 
 
@@ -129,19 +175,25 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     if(state == AuthState.LOGGED_IN) {
       var db = new DatabaseHelper();
       dataKaryawan = await db.getKaryawan();
-      Navigator.of(_ctx).pushReplacement(
+      Navigator.of(context).pushReplacement(
           new MaterialPageRoute(settings: const RouteSettings(name: '/home'),
-              builder: (_ctx) => new HomeScreen(karyawan: dataKaryawan,)
+              builder: (context) => new HomeScreen(karyawan: dataKaryawan,)
           )
       );
     }
+//    else {
+//      Navigator.of(context).pushReplacement(
+//          new MaterialPageRoute(settings: const RouteSettings(name: '/'),
+//              builder: (context) => new SplashScreen()
+//          )
+//      );
+//    }
   }
 
   @override
   void onLoginError(String errorTxt) {
     // TODO: implement onLoginError
-//    _showSnackBar(errorTxt);
-    showAlertDialog(context, true, errorTxt,"Login Gagal",AlertType.error);
+    showAlertDialog(_ctx, true, errorTxt,"Login Gagal",AlertType.error);
     setState(() {
       _isLoading = false;
     });
@@ -150,12 +202,13 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
   @override
   void onLoginSuccess(Karyawan karyawan) async {
     // TODO: implement onLoginSuccess
-//    _showSnackBar(karyawan.toString());
     setState(() => _isLoading = false );
     var db = new DatabaseHelper();
     await db.saveKaryawan(karyawan);
     dataKaryawan = await db.getKaryawan();
-    showAlertDialog(context, true, "Selamat datang "+karyawan.nama.toUpperCase(),"Login Berhasil",AlertType.success);
+    //Navigator.of(_ctx).pop();
+    showAlertDialog(_ctx, true, "Selamat datang "+karyawan.nama.toUpperCase(), "Login Berhasil", AlertType.success);
+
   }
 
   @override
@@ -164,6 +217,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     Alert(
       context: context,
       type: type,
+      style: alertStyle,
       title: "$alertTitle",
       desc:  "$obj",
       buttons: [
@@ -173,7 +227,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).pop();
             if(type == AlertType.success){
               var authStateProvider = new AuthStateProvider();
               authStateProvider.notify(AuthState.LOGGED_IN);
@@ -184,4 +238,21 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
       ],
     ).show();
   }
+
+  var alertStyle = AlertStyle(
+    animationType: AnimationType.fromTop,
+    isCloseButton: false,
+    isOverlayTapDismiss: false,
+    descStyle: TextStyle(fontWeight: FontWeight.bold),
+    animationDuration: Duration(milliseconds: 400),
+    alertBorder: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+      side: BorderSide(
+        color: Colors.grey,
+      ),
+    ),
+    titleStyle: TextStyle(
+      color: Colors.red,
+    ),
+  );
 }

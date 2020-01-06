@@ -1,7 +1,5 @@
 
-import 'dart:convert';
 
-import 'package:http/http.dart';
 
 class Karyawan{
   String id;
@@ -44,6 +42,4 @@ class Karyawan{
     hp        = map['hp'];
     token     = map['token'];
   }
-
-
 }

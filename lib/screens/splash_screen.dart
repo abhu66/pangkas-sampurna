@@ -15,12 +15,27 @@ class SplashScreen extends StatefulWidget{
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen>{
+class SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin{
+
+  AnimationController _animationController;
+
 
   @override
   void initState(){
-    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
     startSplashScreen();
+    _animationController.repeat();
+    super.initState();
+  }
+
+  @override
+  void dispose(){
+    _animationController.dispose();
+    super.dispose();
   }
 
   startSplashScreen() async {
@@ -32,11 +47,12 @@ class SplashScreenState extends State<SplashScreen>{
       Navigator.of(context).pushReplacement(
           new MaterialPageRoute(
               settings: RouteSettings(name: '$path'),
-              builder: (_ctx) => k == null ? new LoginScreen() : new HomeScreen(karyawan: k,)
+              builder: (context) => k == null ? new LoginScreen() : new HomeScreen(karyawan: k,)
           )
       );
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +60,15 @@ class SplashScreenState extends State<SplashScreen>{
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Image.asset(
-          "assets/images/logo_login.png",
+        child: RotationTransition(
+          turns: Tween(begin: 0.0, end: 1.0).animate(_animationController),
+          child:  Image.asset(
+            "assets/images/logo_login.png",
+            width: 200.0,
+            height: 100.0,
+          ),
         ),
+
       ),
     );
   }

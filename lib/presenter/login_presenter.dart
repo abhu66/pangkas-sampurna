@@ -1,10 +1,8 @@
 
 
 
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:pangkas_app/model/Karyawan.dart';
 import 'package:pangkas_app/services/ApiService.dart';
-import 'package:pangkas_app/util/base_widget.dart';
 
 abstract class LoginScreenContract{
   void onLoginSuccess(Karyawan karyawan);

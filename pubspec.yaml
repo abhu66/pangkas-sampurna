@@ -29,6 +29,7 @@ dependencies:
   sqflite: ^1.2.0
   path_provider: ^1.5.1
   rflutter_alert: ^1.0.3
+  splashscreen: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +53,7 @@ flutter:
   #  - images/a_dot_ham.jpeg
   assets:
     - assets/images/logo_login.png
+    - assets/images/no-wifi.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

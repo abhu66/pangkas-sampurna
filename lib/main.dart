@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:pangkas_app/routes.dart';
-import 'package:pangkas_app/auth.dart';
+import 'package:pangkas_app/screens/splash_screen.dart';
 
 
 void main() => runApp(new MainApp());
@@ -17,7 +16,7 @@ class MainApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.red,
       ),
-      routes: routes,
+      home: SplashScreen(),
     );
   }
 
