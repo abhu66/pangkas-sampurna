@@ -21,5 +21,4 @@ class LoginScreenPresenter{
       _view.onLoginError(err.toString());
     });
   }
-
 }

@@ -1,3 +1,4 @@
+import 'package:pangkas_app/model/History.dart';
 import 'package:pangkas_app/model/Task.dart';
 import 'package:pangkas_app/services/ApiService.dart';
 
@@ -16,6 +17,14 @@ class MainScreenPresenter{
       _view.onLoadSuccess(allTask);
     }).catchError((err){
       return _view.onLoadError(err.toString());
+    });
+  }
+
+  doSubmitTask(String idn_karyawan, String task, String biaya,String keterangan){
+    _apiService.submitHistory(idn_karyawan, task,biaya, keterangan).then((dynamic str){
+      _view.onLoadSuccess(str.toString());
+    }).catchError((error){
+      return _view.onLoadError(error.toString());
     });
   }
 }

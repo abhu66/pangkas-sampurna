@@ -4,14 +4,37 @@ import 'dart:async';
 
 import 'package:async_loader/async_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:pangkas_app/model/History.dart';
+import 'package:pangkas_app/model/Karyawan.dart';
 import 'package:pangkas_app/model/Task.dart';
+import 'package:pangkas_app/presenter/main_screen_presenter.dart';
 import 'package:pangkas_app/services/ApiService.dart';
+import 'package:pangkas_app/util/base_widget.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-class TaskTab extends StatelessWidget {
+class TaskTab extends StatefulWidget{
+
+  final Karyawan karyawan;
+  TaskTab({Key key, this.karyawan}) : super(key:key);
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return new TaskTabState();
+  }
+}
+
+class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidget{
+
   final GlobalKey<AsyncLoaderState> asyncLoaderState = new GlobalKey<AsyncLoaderState>();
   final ApiService _apiService = new ApiService();
   final bool visible = true;
+  MainScreenPresenter _mainScreenPresenter;
+  final myController = TextEditingController();
+
+  TaskTabState(){
+    _mainScreenPresenter = new MainScreenPresenter(this);
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -62,6 +85,7 @@ class TaskTab extends StatelessWidget {
                               style: TextStyle(color: Colors.white,fontSize: 18.0),),
                             color: Colors.orange[400],
                             onPressed: (){
+                                  _showConfirmDialog(context, task);
                             },
                           )
                         ],
@@ -108,8 +132,87 @@ class TaskTab extends StatelessWidget {
 
   Future<Null> _handleRefresh() async {
       asyncLoaderState.currentState.reloadState();
-
     return null;
   }
+
+  @override
+  void onLoadError(String errorTxt) {
+    // TODO: implement onLoadError
+    showAlertDialog(context, true, errorTxt,"Submit Gagal",AlertType.error);
+  }
+
+  @override
+  void onLoadSuccess(dynamic str) {
+    showAlertDialog(context, true, str.toString(),"Submit Berhasil",AlertType.success);
+
+  }
+
+  void _showConfirmDialog(BuildContext context,Task task){
+    Alert(
+      context: context,
+      title: task.nama,
+      content: Column(
+        children: <Widget>[
+          TextField(
+            controller: myController,
+            decoration: InputDecoration(
+              labelText: 'Keterangan',
+            ),
+          ),
+        ],
+      ),
+      buttons: [
+        DialogButton(
+          onPressed: (){
+            Navigator.pop(context);
+            _mainScreenPresenter.doSubmitTask(widget.karyawan.identitas, task.nama, task.biaya,myController.text);
+         },
+          child: Text(
+            "Kirim",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        )
+      ]).show();
+  }
+
+  @override
+  void showAlertDialog(BuildContext context, bool params, obj, String alertTitle, AlertType type) {
+    Alert(
+      context: context,
+      type: type,
+      style: alertStyle,
+      title: "$alertTitle",
+      desc:  "$obj",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "Ok",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          width: 120,
+        )
+      ],
+    ).show();
+  }
+
+  var alertStyle = AlertStyle(
+    animationType: AnimationType.fromTop,
+    isCloseButton: false,
+    isOverlayTapDismiss: false,
+    descStyle: TextStyle(fontWeight: FontWeight.bold),
+    animationDuration: Duration(milliseconds: 400),
+    alertBorder: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10.0),
+      side: BorderSide(
+        color: Colors.grey,
+      ),
+    ),
+    titleStyle: TextStyle(
+      color: Colors.red,
+    ),
+  );
 
 }

@@ -9,8 +9,9 @@ class Karyawan{
   String password;
   String hp;
   String token;
+  String role;
 
-  Karyawan({this.identitas,this.nama,this.email,this.password,this.hp,this.token});
+  Karyawan({this.identitas,this.nama,this.email,this.password,this.hp,this.token,this.role});
 
   factory Karyawan.fromJson(Map<String, dynamic> map){
     return Karyawan(
@@ -20,6 +21,7 @@ class Karyawan{
       password  : map['password'],
       hp        : map['hp'],
       token     : map['token'],
+      role      : map['role'],
     );
   }
 
@@ -31,6 +33,7 @@ class Karyawan{
      map['password']  = password;
      map['hp']        = hp;
      map['token']     = token;
+     map['role']      = role;
 
     return map;
   }
@@ -41,5 +44,6 @@ class Karyawan{
     password  = map['password'];
     hp        = map['hp'];
     token     = map['token'];
+    role      = map['role'];
   }
 }

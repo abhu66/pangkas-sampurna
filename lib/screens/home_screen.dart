@@ -54,8 +54,8 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
       body:  new TabBarView(
         controller: _tabController,
         children: <Widget>[
-          TaskTab(),
-          HistoryTab(),
+          TaskTab(karyawan: widget.karyawan),
+          HistoryTab(karyawan: widget.karyawan),
         ],
       ) ,
       drawer: new Drawer(

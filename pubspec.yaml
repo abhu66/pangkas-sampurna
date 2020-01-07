@@ -30,6 +30,7 @@ dependencies:
   path_provider: ^1.5.1
   rflutter_alert: ^1.0.3
   splashscreen: ^1.2.0
+  grouped_list: ^1.2.1
 
 dev_dependencies:
   flutter_test:
