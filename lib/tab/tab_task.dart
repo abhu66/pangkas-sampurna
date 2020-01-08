@@ -30,6 +30,11 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
   final bool visible = true;
   MainScreenPresenter _mainScreenPresenter;
   final myController = TextEditingController();
+  final formKey       = new GlobalKey<FormState>();
+  bool _isLoading = true;
+  final nama = TextEditingController();
+  final deskripsi =  TextEditingController();
+  final biaya = TextEditingController();
 
   TaskTabState(){
     _mainScreenPresenter = new MainScreenPresenter(this);
@@ -51,6 +56,13 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
         onRefresh: _handleRefresh,
           child:_asyncLoader
         ),
+
+      floatingActionButton: widget.karyawan.role == 'admin' ? FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: (){
+            _showAddTaskDialog(context);
+        },
+      ) : null,
     );
   }
 
@@ -138,13 +150,12 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
   @override
   void onLoadError(String errorTxt) {
     // TODO: implement onLoadError
-    showAlertDialog(context, true, errorTxt,"Submit Gagal",AlertType.error);
+    showAlertDialog(asyncLoaderState.currentContext, true, errorTxt,"Simpan Gagal",AlertType.error);
   }
 
   @override
   void onLoadSuccess(dynamic str) {
-    showAlertDialog(context, true, str.toString(),"Submit Berhasil",AlertType.success);
-
+    showAlertDialog(asyncLoaderState.currentContext, true, str.toString(),"Simpan Berhasil",AlertType.success);
   }
 
   void _showConfirmDialog(BuildContext context,Task task){
@@ -164,7 +175,7 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
       buttons: [
         DialogButton(
           onPressed: (){
-            Navigator.pop(context);
+            Navigator.of(context).pop(false);
             _mainScreenPresenter.doSubmitTask(widget.karyawan.identitas, task.nama, task.biaya,myController.text);
          },
           child: Text(
@@ -173,6 +184,55 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
           ),
         )
       ]).show();
+  }
+  void _showAddTaskDialog(BuildContext context){
+    Alert(
+        context: context,
+        title: 'Tambah Task',
+        style: alertStyle,
+        content: Column(
+          children: <Widget>[
+            TextField(
+              controller: nama,
+              decoration: InputDecoration(
+                labelText: 'Nama Task',
+              ),
+            ),
+            TextField(
+              controller: biaya,
+              decoration: InputDecoration(
+                labelText: 'Nama Biaya',
+              ),
+            ),
+            TextField(
+              controller: deskripsi,
+              decoration: InputDecoration(
+                labelText: 'Keterangan',
+              ),
+            ),
+          ],
+        ),
+        buttons: [
+          DialogButton(
+            onPressed: (){
+              _mainScreenPresenter.doCreateTask(nama.text, deskripsi.text, biaya.text);
+            },
+            child: Text(
+              "Simpan",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          ),
+          DialogButton(
+            onPressed: (){
+              dispose();
+              //_mainScreenPresenter.doSubmitTask(widget.karyawan.identitas, task.nama, task.biaya,myController.text);
+            },
+            child: Text(
+              "Batal",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          )
+        ]).show();
   }
 
   @override
@@ -190,7 +250,11 @@ class TaskTabState extends State<TaskTab> implements MainScreenContact ,BaseWidg
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+
+            setState(() {
+              _handleRefresh();
+              Navigator.of(context).pop(false);
+            });
           },
           width: 120,
         )

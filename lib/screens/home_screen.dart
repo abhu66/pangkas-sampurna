@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pangkas_app/auth.dart';
 import 'package:pangkas_app/data/database_helper.dart';
 import 'package:pangkas_app/model/Karyawan.dart';
+import 'package:pangkas_app/presenter/main_screen_presenter.dart';
 import 'package:pangkas_app/screens/splash_screen.dart';
 import 'package:pangkas_app/tab/tab_history.dart';
 import 'package:pangkas_app/tab/tab_task.dart';
@@ -24,6 +25,7 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
 
   BuildContext _ctx;
   TabController _tabController;
+  GlobalKey _scaffold = GlobalKey();
 
   HomeScreenState(){
     var authStateProvider = new AuthStateProvider();
@@ -41,6 +43,7 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
     _ctx = context;
     // TODO: implement build
     return new Scaffold(
+      key: _scaffold,
       appBar: new AppBar(
         title: Text("Pangkas App"),
         bottom: new TabBar(
@@ -109,8 +112,7 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
                           ),
                           title: Text('Logout'),
                           onTap: () {
-                            Navigator.of(context).pop();
-                            _alertLogout(context);
+                            _alertLogout(_scaffold.currentContext);
                           },
                         )
                       ],
@@ -127,7 +129,7 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
   @override
   void onAuthStateChanged(AuthState state) {
     if(state == AuthState.LOGGED_OUT){
-      Navigator.of(context).pushReplacement(
+      Navigator.of(_ctx).pushReplacement(
           new MaterialPageRoute(settings: const RouteSettings(name: '/'),
               builder: (context) => new SplashScreen()
           )
@@ -140,7 +142,6 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
       await db.deleteKaryawan(widget.karyawan);
       var authStateProvider = new AuthStateProvider();
       authStateProvider.notify(AuthState.LOGGED_OUT);
-
   }
 
   void _alertLogout(BuildContext context){
@@ -157,8 +158,8 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           onPressed: () {
-            Navigator.of(context).pop();
             _logout(context);
+            dispose();
           },
           color: Color.fromRGBO(0, 179, 134, 1.0),
         ),
@@ -167,7 +168,9 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
             "Tidak",
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
           gradient: LinearGradient(colors: [
             Color.fromRGBO(116, 116, 191, 1.0),
             Color.fromRGBO(52, 138, 199, 1.0)
@@ -193,4 +196,5 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
       color: Colors.red,
     ),
   );
+
 }

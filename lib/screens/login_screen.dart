@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScreenContract,AuthStateListener{
   bool _isLoading     = false;
   final formKey       = new GlobalKey<FormState>();
-  GlobalKey _scaffoldKey;
+  GlobalKey _scaffoldKey = new GlobalKey();
   BuildContext _ctx;
   String _username,_password;
   LoginScreenPresenter _presenter;
@@ -175,7 +175,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     if(state == AuthState.LOGGED_IN) {
       var db = new DatabaseHelper();
       dataKaryawan = await db.getKaryawan();
-      Navigator.of(context).pushReplacement(
+      Navigator.of(_scaffoldKey.currentContext).pushReplacement(
           new MaterialPageRoute(settings: const RouteSettings(name: '/home'),
               builder: (context) => new HomeScreen(karyawan: dataKaryawan,)
           )
@@ -193,7 +193,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
   @override
   void onLoginError(String errorTxt) {
     // TODO: implement onLoginError
-    showAlertDialog(_ctx, true, errorTxt,"Login Gagal",AlertType.error);
+    showAlertDialog(_scaffoldKey.currentContext, true, errorTxt,"Login Gagal",AlertType.error);
     setState(() {
       _isLoading = false;
     });
@@ -207,7 +207,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     await db.saveKaryawan(karyawan);
     dataKaryawan = await db.getKaryawan();
     //Navigator.of(_ctx).pop();
-    showAlertDialog(_ctx, true, "Selamat datang "+karyawan.nama.toUpperCase(), "Login Berhasil", AlertType.success);
+    showAlertDialog(_scaffoldKey.currentContext, true, "Selamat datang "+karyawan.nama.toUpperCase(), "Login Berhasil", AlertType.success);
 
   }
 
@@ -227,7 +227,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+            dispose();
             if(type == AlertType.success){
               var authStateProvider = new AuthStateProvider();
               authStateProvider.notify(AuthState.LOGGED_IN);

@@ -27,4 +27,11 @@ class MainScreenPresenter{
       return _view.onLoadError(error.toString());
     });
   }
+  doCreateTask(String nama, String deskripsi, String biaya) {
+    _apiService.addTask(nama, deskripsi, biaya).then((dynamic str){
+      _view.onLoadSuccess(str.toString());
+    }).catchError((err){
+      return _view.onLoadError(err.toString());
+    });
+  }
 }

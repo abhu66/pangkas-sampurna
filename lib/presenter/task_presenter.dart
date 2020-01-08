@@ -13,7 +13,6 @@ class TaskScreenPresenter{
   ApiService _apiService = new ApiService();
   TaskScreenPresenter(this._view);
 
-
   doGetTask(){
     _apiService.getAllTask().then((List<Task> allTask){
       _view.onLoadSucces(allTask);

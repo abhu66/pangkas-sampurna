@@ -10,8 +10,9 @@ class History{
   String biaya;
   String keterangan;
   String tgl_trx;
+  String total;
 
-  History({this.id,this.idn_karyawan,this.nama,this.biaya,this.keterangan,this.tgl_trx});
+  History({this.id,this.idn_karyawan,this.nama,this.biaya,this.keterangan,this.tgl_trx,this.total});
 
   factory History.fromJson(Map<String, dynamic> map){
     return History(
@@ -21,6 +22,7 @@ class History{
       biaya:map['biaya'],
       keterangan: map['keterangan'],
       tgl_trx: map['tgl_trx'],
+      total: map['total'],
     );
   }
   static List<History> historyFromJson(String jsonData){

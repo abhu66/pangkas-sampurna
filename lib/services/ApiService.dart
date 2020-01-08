@@ -14,8 +14,10 @@ class ApiService{
   static final String BASE_URL            = "http://pangkas-sampurna.000webhostapp.com/api/"; //PUBLIC
   static final String LOGIN_URL           = BASE_URL + "karyawan/loginkaryawan";
   static final String TASK_URL            = BASE_URL + "task/getalltask";
+  static final String CREATE_TASK_URL     = BASE_URL + "task/add";
   static final String HISTORY_URL         = BASE_URL + "history/gethistory";
   static final String SUBMIT_HISTORY_URL  = BASE_URL + "history/add";
+  static final String GET_HISTORY_TOTAL   = BASE_URL + "history/gettotal";
   static final _API_KEY                   = "ABUKHOERULZAMIAT";
   NetworkUtil  _networkUtil               = new NetworkUtil();
 
@@ -49,6 +51,22 @@ class ApiService{
       }
     });
   }
+
+  Future<String> addTask(String nama, String deskripsi, String biaya) async {
+    return _networkUtil.post(CREATE_TASK_URL, body: {
+      "token":_API_KEY,
+      "nama":nama,
+      "deskripsi":deskripsi,
+      "biaya":biaya
+    }).then((dynamic res){
+      if(res['error']){
+        throw Exception(res['error_message']);
+      }
+      else {
+        return "Berhasil";
+      }
+    });
+  }
   Future<List<History>> getHistoryByIdnKaryawan(String idnKaryawan) async {
     return _networkUtil.post(HISTORY_URL,body: {
       "token":_API_KEY,
@@ -78,6 +96,18 @@ class ApiService{
           return "Berhasil";
         }
       });
-
+  }
+  Future<History> getTotalIncome(String idn_karyawan) async{
+    return _networkUtil.post(GET_HISTORY_TOTAL,body:{
+      "token":_API_KEY,
+      "idn_karyawan":idn_karyawan
+    }).then((dynamic res){
+      if(res['error']){
+        throw Exception(res['error_message']);
+      }
+      else {
+        return HistoryResponse.fromJson(res).data[0];
+      }
+    });
   }
 }
