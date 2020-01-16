@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:pangkas_app/activity/employee_activity.dart';
 import 'package:pangkas_app/auth.dart';
 import 'package:pangkas_app/data/database_helper.dart';
 import 'package:pangkas_app/model/Karyawan.dart';
@@ -96,6 +97,19 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
                         Navigator.pop(context);
                       },
                     ),
+                    ListTile(
+                      leading: IconButton(
+                        icon: Icon(Icons.person),
+                      ),
+                      title: Text('Employee'),
+                      onTap: () {
+                        Navigator.of(context).push(
+                            new MaterialPageRoute(
+                                builder: (context) => new EmployeeActivity(),
+                            )
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -128,13 +142,13 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
 
   @override
   void onAuthStateChanged(AuthState state) {
-    if(state == AuthState.LOGGED_OUT){
-      Navigator.of(_ctx).pushReplacement(
-          new MaterialPageRoute(settings: const RouteSettings(name: '/'),
-              builder: (context) => new SplashScreen()
-          )
-      );
-    }
+//    if(state == AuthState.LOGGED_OUT){
+//      Navigator.of(_ctx).pushReplacement(
+//          new MaterialPageRoute(settings: const RouteSettings(name: '/'),
+//              builder: (context) => new SplashScreen()
+//          )
+//      );
+//    }
   }
 
   void _logout(BuildContext context) async {
@@ -142,6 +156,13 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
       await db.deleteKaryawan(widget.karyawan);
       var authStateProvider = new AuthStateProvider();
       authStateProvider.notify(AuthState.LOGGED_OUT);
+      Navigator.of(_scaffold.currentContext).pop();
+      Navigator.of(_scaffold.currentContext).pushReplacement(
+          new MaterialPageRoute(settings: const RouteSettings(name: '/'),
+              builder: (context) => new SplashScreen()
+          )
+      );
+
   }
 
   void _alertLogout(BuildContext context){
@@ -159,7 +180,6 @@ class HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMi
           ),
           onPressed: () {
             _logout(context);
-            dispose();
           },
           color: Color.fromRGBO(0, 179, 134, 1.0),
         ),

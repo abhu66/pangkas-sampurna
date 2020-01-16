@@ -175,7 +175,7 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
     if(state == AuthState.LOGGED_IN) {
       var db = new DatabaseHelper();
       dataKaryawan = await db.getKaryawan();
-      Navigator.of(_scaffoldKey.currentContext).pushReplacement(
+      Navigator.of(_ctx).pushReplacement(
           new MaterialPageRoute(settings: const RouteSettings(name: '/home'),
               builder: (context) => new HomeScreen(karyawan: dataKaryawan,)
           )
@@ -227,11 +227,11 @@ class LoginScreenState extends State<LoginScreen> implements BaseWidget,LoginScr
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
           onPressed: () {
-            dispose();
             if(type == AlertType.success){
               var authStateProvider = new AuthStateProvider();
               authStateProvider.notify(AuthState.LOGGED_IN);
             }
+            Navigator.of(_scaffoldKey.currentContext).pop(false);
           },
           width: 120,
         )

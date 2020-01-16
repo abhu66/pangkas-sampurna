@@ -18,6 +18,7 @@ class ApiService{
   static final String HISTORY_URL         = BASE_URL + "history/gethistory";
   static final String SUBMIT_HISTORY_URL  = BASE_URL + "history/add";
   static final String GET_HISTORY_TOTAL   = BASE_URL + "history/gettotal";
+  static final String LIST_EMPLOYEE       = BASE_URL + "karyawan/getemployee";
   static final _API_KEY                   = "ABUKHOERULZAMIAT";
   NetworkUtil  _networkUtil               = new NetworkUtil();
 
@@ -32,7 +33,7 @@ class ApiService{
         throw Exception(res['error_message']);
       }
       else {
-        return new KaryawanResponse.fromJson(res).data;
+        return new KaryawanResponse.fromJson(res).data[0];
       }
     });
   }
@@ -107,6 +108,20 @@ class ApiService{
       }
       else {
         return HistoryResponse.fromJson(res).data[0];
+      }
+    });
+  }
+
+  Future<List<Karyawan>> getEmployee(String identitas) async {
+    return _networkUtil.post(LIST_EMPLOYEE,body: {
+      "token":_API_KEY,
+      "identitas":identitas
+    }).then((dynamic res){
+      if(res['error']){
+        throw Exception(res['error_message']);
+      }
+      else {
+        return new KaryawanResponse.fromJson(res).data;
       }
     });
   }
